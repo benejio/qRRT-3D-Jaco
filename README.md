@@ -110,6 +110,16 @@ Check that the packages are available:
 
 ---
 
+## Python Dependencies
+
+Install Python dependencies with:
+
+    pip install -r requirements.txt
+
+This only installs the Python/Qiskit dependencies. ROS 2 Humble and MoveIt 2 must still be installed through the normal ROS installation process.
+
+---
+
 ## Launch MoveIt
 
 Before running any planner, move_group must be running.
