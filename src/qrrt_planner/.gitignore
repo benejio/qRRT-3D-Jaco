@@ -1,0 +1,27 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.env/
+.venv/
+
+# ROS / colcon build artifacts
+build/
+install/
+log/
+
+# Local backups
+_backups/
+
+# Archives
+*.zip
+*.tar.gz
+
+# Results/debug outputs
+results/
+*.csv
+
+# Editor/system files
+.vscode/
+.idea/
+.DS_Store

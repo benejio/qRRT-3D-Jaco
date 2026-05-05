@@ -1,0 +1,10 @@
+moveit_setup_assistant_config:
+  urdf:
+    package: jaco_description
+    relative_path: urdf/j2n6s300_standalone.xacro
+  srdf:
+    relative_path: config/j2n6s300.srdf
+  package_settings:
+    author_name: Jesse
+    author_email: jesse.beneventi@wsu.edu
+    generated_timestamp: 1770686972

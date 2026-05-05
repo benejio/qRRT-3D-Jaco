@@ -1,0 +1,27 @@
+# ROS / colcon generated folders
+build/
+install/
+log/
+
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.env/
+.venv/
+
+# Local backups
+_backups/
+
+# Archives
+*.zip
+*.tar.gz
+
+# Experiment outputs
+results/*.csv
+results/*_debug.csv
+
+# Editor/system files
+.vscode/
+.idea/
+.DS_Store

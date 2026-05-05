@@ -1,0 +1,18 @@
+<?xml version="1.0"?>
+<package format="3">
+  <name>kinova_description</name>
+  <version>0.0.0</version>
+  <description>Compatibility package to provide Kinova URDF/meshes for xacro includes.</description>
+
+  <maintainer email="jesse@invalid.local">jesse</maintainer>
+  <license>Apache-2.0</license>
+
+  <buildtool_depend>ament_cmake</buildtool_depend>
+
+  <exec_depend>xacro</exec_depend>
+
+  <export>
+    <build_type>ament_cmake</build_type>
+  </export>
+</package>
+
