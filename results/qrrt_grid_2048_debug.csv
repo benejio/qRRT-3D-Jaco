@@ -1,0 +1,88 @@
+iteration,goal_sampled,candidate_count,chosen_idx,chosen_rank,accepted,rejection_reason,tree_nodes
+1,False,83,"(5, 5, 6, 5, 4, 5)",1,True,,2
+2,False,83,"(5, 5, 5, 5, 4, 6)",3,True,,3
+3,False,83,"(5, 5, 5, 5, 4, 5)",5,True,,4
+4,False,0,,,False,invalid_random_target,4
+5,False,83,"(5, 5, 5, 5, 7, 5)",83,True,,5
+6,False,0,,,False,invalid_random_target,5
+7,False,83,"(6, 5, 5, 5, 4, 4)",65,True,,6
+8,False,0,,,False,invalid_random_target,6
+9,False,83,"(5, 5, 7, 5, 4, 6)",2,True,,7
+10,False,83,"(5, 5, 5, 5, 5, 5)",1,False,duplicate,7
+11,True,43,"(5, 5, 5, 5, 4, 6)",29,False,duplicate,7
+12,False,0,,,False,invalid_random_target,7
+13,False,83,"(5, 5, 6, 5, 6, 5)",2,True,,8
+14,False,78,"(5, 4, 6, 5, 4, 5)",27,True,,9
+15,False,83,"(5, 5, 5, 6, 3, 6)",19,True,,10
+16,False,43,"(5, 5, 7, 4, 3, 6)",6,True,,11
+17,False,82,"(5, 5, 4, 5, 3, 6)",65,True,,12
+18,False,83,"(5, 5, 5, 5, 3, 5)",2,True,,13
+19,False,83,"(5, 4, 5, 5, 6, 5)",7,True,,14
+20,False,26,"(5, 5, 6, 5, 3, 6)",6,True,,15
+21,False,0,,,False,invalid_random_target,15
+22,True,26,"(5, 5, 7, 4, 3, 7)",4,True,,16
+23,True,29,"(6, 5, 7, 4, 2, 7)",3,True,,17
+24,True,29,"(5, 5, 7, 4, 3, 6)",9,False,duplicate,17
+25,False,0,,,False,invalid_random_target,17
+26,False,82,"(6, 5, 5, 6, 2, 6)",19,True,,18
+27,False,83,"(5, 5, 5, 4, 7, 6)",28,True,,19
+28,True,29,"(5, 5, 7, 4, 3, 8)",10,True,,20
+29,False,0,,,False,invalid_random_target,20
+30,False,0,,,False,invalid_random_target,20
+31,False,81,"(5, 6, 6, 5, 5, 5)",8,True,,21
+32,False,81,"(6, 5, 5, 7, 2, 5)",74,True,,22
+33,False,0,,,False,invalid_random_target,22
+34,False,0,,,False,invalid_random_target,22
+35,False,0,,,False,invalid_random_target,22
+36,False,83,"(6, 5, 5, 5, 4, 6)",3,True,,23
+37,False,71,"(5, 4, 5, 4, 5, 5)",9,True,,24
+38,False,0,,,False,invalid_random_target,24
+39,False,0,,,False,invalid_random_target,24
+40,False,83,"(6, 5, 6, 5, 3, 4)",5,True,,25
+41,False,83,"(6, 5, 6, 5, 7, 5)",20,True,,26
+42,False,83,"(6, 5, 4, 5, 3, 7)",19,True,,27
+43,False,84,"(5, 6, 6, 5, 5, 3)",83,True,,28
+44,False,0,,,False,invalid_random_target,28
+45,False,0,,,False,invalid_random_target,28
+46,False,83,"(5, 6, 5, 4, 6, 6)",9,True,,29
+47,False,36,"(5, 5, 7, 4, 2, 8)",3,True,,30
+48,True,29,"(5, 6, 7, 5, 3, 7)",5,True,,31
+49,False,84,"(5, 6, 5, 5, 5, 6)",4,True,,32
+50,False,83,"(6, 5, 6, 6, 2, 5)",1,True,,33
+51,False,71,"(5, 4, 5, 5, 5, 6)",3,True,,34
+52,False,71,"(5, 4, 4, 4, 5, 5)",51,True,,35
+53,False,82,"(6, 6, 6, 5, 6, 5)",7,True,,36
+54,False,0,,,False,invalid_random_target,36
+55,False,33,"(5, 5, 6, 4, 2, 7)",1,True,,37
+56,False,83,"(5, 5, 6, 4, 7, 6)",16,True,,38
+57,False,83,"(5, 5, 5, 4, 6, 5)",9,True,,39
+58,False,83,"(5, 5, 5, 5, 2, 6)",2,True,,40
+59,True,29,"(5, 5, 6, 5, 3, 7)",4,True,,41
+60,False,0,,,False,invalid_random_target,41
+61,False,83,"(5, 5, 5, 5, 3, 7)",2,True,,42
+62,False,74,"(6, 5, 6, 5, 2, 5)",3,True,,43
+63,False,0,,,False,invalid_random_target,43
+64,False,30,"(5, 5, 6, 5, 2, 8)",4,True,,44
+65,False,0,,,False,invalid_random_target,44
+66,False,83,"(5, 6, 5, 5, 6, 5)",8,True,,45
+67,False,0,,,False,invalid_random_target,45
+68,False,83,"(6, 5, 5, 5, 3, 6)",9,True,,46
+69,False,71,"(6, 4, 5, 6, 5, 6)",40,True,,47
+70,False,84,"(5, 6, 5, 4, 4, 6)",1,True,,48
+71,False,83,"(6, 5, 5, 5, 2, 5)",8,True,,49
+72,False,33,"(5, 5, 7, 4, 3, 7)",3,False,duplicate,49
+73,False,0,,,False,invalid_random_target,49
+74,True,29,"(5, 5, 7, 4, 3, 6)",9,False,duplicate,49
+75,False,84,"(5, 6, 6, 6, 5, 4)",12,True,,50
+76,False,83,"(5, 5, 5, 5, 3, 7)",2,False,duplicate,50
+77,False,0,,,False,invalid_random_target,50
+78,False,83,"(5, 5, 5, 5, 6, 5)",4,True,,51
+79,False,84,"(5, 6, 5, 4, 4, 6)",1,False,duplicate,51
+80,False,83,"(5, 5, 5, 3, 3, 7)",64,True,,52
+81,False,84,"(5, 6, 5, 4, 4, 6)",1,False,duplicate,52
+82,False,74,"(6, 4, 6, 5, 3, 5)",5,True,,53
+83,False,82,"(6, 5, 6, 4, 6, 6)",7,True,,54
+84,False,81,"(5, 5, 6, 4, 6, 6)",19,True,,55
+85,False,83,"(5, 5, 6, 4, 6, 6)",2,False,duplicate,55
+86,False,83,"(5, 5, 6, 4, 6, 6)",2,False,duplicate,55
+87,True,29,"(5, 5, 7, 5, 2, 7)",1,True,,57

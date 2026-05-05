@@ -1,0 +1,25 @@
+iteration,goal_sampled,candidate_count,chosen_idx,chosen_rank,accepted,rejection_reason,tree_nodes
+1,False,83,"(5, 5, 5, 5, 5, 7)",4,True,,2
+2,False,83,"(5, 5, 4, 5, 5, 6)",8,True,,3
+3,False,83,"(4, 5, 5, 5, 5, 6)",2,True,,4
+4,False,0,,,False,invalid_random_target,4
+5,False,83,"(5, 5, 5, 4, 5, 8)",8,True,,5
+6,False,0,,,False,invalid_random_target,5
+7,False,83,"(5, 5, 4, 4, 6, 6)",3,True,,6
+8,False,0,,,False,invalid_random_target,6
+9,False,83,"(5, 5, 4, 4, 5, 7)",4,True,,7
+10,False,83,"(4, 5, 4, 4, 6, 6)",7,True,,8
+11,True,83,"(3, 5, 4, 3, 6, 6)",3,True,,9
+12,False,0,,,False,invalid_random_target,9
+13,False,83,"(4, 5, 5, 5, 6, 7)",5,True,,10
+14,False,83,"(5, 5, 5, 4, 5, 6)",1,True,,11
+15,False,83,"(4, 5, 4, 5, 5, 7)",6,True,,12
+16,False,82,"(3, 5, 5, 4, 5, 8)",4,True,,13
+17,False,83,"(5, 5, 4, 4, 6, 6)",3,False,duplicate,13
+18,False,83,"(3, 5, 4, 5, 5, 6)",7,True,,14
+19,False,83,"(4, 5, 4, 3, 5, 7)",2,True,,15
+20,False,83,"(4, 5, 4, 4, 5, 6)",4,True,,16
+21,False,0,,,False,invalid_random_target,16
+22,True,83,"(3, 5, 4, 3, 6, 8)",1,True,,17
+23,True,82,"(2, 5, 4, 3, 7, 8)",4,True,,18
+24,True,78,"(2, 5, 3, 2, 7, 8)",1,True,,20

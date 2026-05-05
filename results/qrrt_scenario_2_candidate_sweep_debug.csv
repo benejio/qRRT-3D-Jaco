@@ -1,0 +1,284 @@
+iteration,goal_sampled,candidate_count,chosen_idx,chosen_rank,accepted,rejection_reason,tree_nodes
+1,False,83,"(5, 5, 6, 6, 5, 5)",14,True,,2
+2,False,83,"(5, 5, 5, 5, 6, 6)",3,True,,3
+3,False,83,"(4, 5, 5, 6, 5, 5)",40,True,,4
+4,False,0,,,False,invalid_random_target,4
+5,False,83,"(5, 5, 5, 5, 8, 6)",10,True,,5
+6,False,0,,,False,invalid_random_target,5
+7,False,83,"(6, 5, 5, 5, 6, 5)",4,True,,6
+8,False,0,,,False,invalid_random_target,6
+9,False,81,"(5, 6, 6, 7, 5, 5)",32,True,,7
+10,False,82,"(5, 5, 6, 5, 8, 7)",5,True,,8
+11,True,79,"(6, 6, 6, 5, 8, 7)",1,True,,9
+12,False,0,,,False,invalid_random_target,9
+13,False,79,"(6, 5, 6, 6, 8, 7)",3,True,,10
+14,False,83,"(5, 4, 5, 5, 5, 5)",48,True,,11
+15,False,74,"(6, 5, 7, 7, 8, 7)",14,True,,12
+16,False,73,"(6, 6, 6, 7, 8, 7)",15,True,,13
+17,False,83,"(5, 4, 5, 5, 5, 4)",71,True,,14
+18,False,78,"(6, 6, 6, 6, 8, 6)",18,True,,15
+19,False,78,"(5, 6, 6, 7, 9, 7)",31,True,,16
+20,False,83,"(5, 6, 5, 4, 5, 5)",44,True,,17
+21,False,0,,,False,invalid_random_target,17
+22,True,73,"(6, 6, 6, 6, 8, 7)",3,True,,18
+23,True,74,"(6, 6, 5, 6, 9, 7)",66,True,,19
+24,True,74,"(5, 6, 6, 6, 8, 8)",27,True,,20
+25,False,0,,,False,invalid_random_target,20
+26,False,83,"(5, 5, 5, 6, 6, 5)",1,True,,21
+27,False,83,"(5, 6, 6, 7, 7, 5)",1,True,,22
+28,True,74,"(6, 7, 6, 5, 8, 7)",35,True,,23
+29,False,0,,,False,invalid_random_target,23
+30,False,0,,,False,invalid_random_target,23
+31,False,82,"(5, 6, 7, 7, 8, 5)",13,True,,24
+32,False,83,"(5, 6, 6, 7, 5, 7)",12,True,,25
+33,False,0,,,False,invalid_random_target,25
+34,False,0,,,False,invalid_random_target,25
+35,False,0,,,False,invalid_random_target,25
+36,False,82,"(5, 6, 6, 7, 7, 7)",5,True,,26
+37,False,74,"(6, 5, 7, 7, 8, 7)",14,False,duplicate,26
+38,False,0,,,False,invalid_random_target,26
+39,False,0,,,False,invalid_random_target,26
+40,False,72,"(5, 4, 6, 5, 5, 5)",5,True,,27
+41,False,78,"(7, 6, 6, 8, 8, 7)",59,True,,28
+42,False,72,"(6, 4, 4, 5, 5, 5)",46,True,,29
+43,False,84,"(5, 6, 5, 4, 6, 6)",4,True,,30
+44,False,0,,,False,invalid_random_target,30
+45,False,0,,,False,invalid_random_target,30
+46,False,79,"(6, 5, 7, 5, 8, 7)",2,True,,31
+47,False,83,"(5, 6, 6, 7, 6, 7)",5,True,,32
+48,True,74,"(6, 6, 7, 6, 7, 7)",7,True,,33
+49,False,84,"(5, 6, 5, 4, 7, 5)",3,True,,34
+50,False,83,"(4, 5, 4, 6, 5, 6)",44,True,,35
+51,False,83,"(4, 5, 5, 6, 6, 6)",4,True,,36
+52,False,84,"(5, 6, 5, 4, 5, 6)",63,True,,37
+53,False,54,"(6, 6, 7, 5, 9, 7)",7,True,,38
+54,False,0,,,False,invalid_random_target,38
+55,False,84,"(5, 6, 6, 5, 5, 5)",6,True,,39
+56,False,82,"(5, 5, 6, 5, 8, 6)",6,True,,40
+57,False,84,"(5, 6, 5, 6, 7, 5)",9,True,,41
+58,False,83,"(4, 5, 4, 5, 5, 7)",36,True,,42
+59,True,74,"(6, 6, 7, 7, 8, 7)",6,True,,43
+60,False,0,,,False,invalid_random_target,43
+61,False,73,"(6, 4, 3, 6, 5, 5)",56,True,,44
+62,False,73,"(6, 4, 4, 5, 7, 5)",6,True,,45
+63,False,0,,,False,invalid_random_target,45
+64,False,84,"(5, 6, 6, 5, 5, 6)",5,True,,46
+65,False,0,,,False,invalid_random_target,46
+66,False,73,"(6, 4, 3, 5, 7, 4)",71,True,,47
+67,False,0,,,False,invalid_random_target,47
+68,False,73,"(6, 4, 4, 7, 5, 5)",35,True,,48
+69,False,83,"(5, 5, 5, 6, 5, 6)",2,True,,49
+70,False,84,"(5, 6, 5, 4, 3, 5)",84,True,,50
+71,False,73,"(6, 4, 4, 6, 6, 5)",10,True,,51
+72,False,66,"(5, 4, 6, 6, 6, 5)",7,True,,52
+73,False,0,,,False,invalid_random_target,52
+74,True,74,"(5, 6, 6, 6, 8, 6)",26,True,,53
+75,False,82,"(5, 6, 6, 7, 8, 6)",4,True,,54
+76,False,83,"(4, 6, 6, 7, 6, 7)",10,True,,55
+77,False,0,,,False,invalid_random_target,55
+78,False,82,"(5, 5, 6, 5, 8, 6)",6,False,duplicate,55
+79,False,74,"(6, 7, 6, 6, 8, 6)",22,True,,56
+80,False,83,"(4, 5, 4, 6, 6, 7)",9,True,,57
+81,False,82,"(4, 6, 6, 8, 6, 6)",59,True,,58
+82,False,72,"(5, 4, 6, 5, 6, 4)",4,True,,59
+83,False,67,"(6, 4, 6, 5, 6, 5)",4,True,,60
+84,False,84,"(4, 6, 5, 4, 5, 6)",45,True,,61
+85,False,73,"(6, 4, 5, 6, 7, 5)",5,True,,62
+86,False,83,"(4, 5, 5, 5, 6, 7)",1,True,,63
+87,True,74,"(6, 6, 7, 6, 8, 8)",10,True,,64
+88,False,0,,,False,invalid_random_target,64
+89,False,0,,,False,invalid_random_target,64
+90,False,54,"(6, 6, 8, 5, 8, 7)",5,True,,65
+91,False,0,,,False,invalid_random_target,65
+92,False,67,"(6, 4, 6, 5, 6, 5)",4,False,duplicate,65
+93,False,0,,,False,invalid_random_target,65
+94,False,84,"(5, 6, 5, 2, 3, 5)",78,True,,66
+95,False,0,,,False,invalid_random_target,66
+96,False,84,"(5, 6, 5, 5, 3, 4)",45,True,,67
+97,False,38,"(6, 5, 7, 6, 8, 6)",11,True,,68
+98,False,61,"(6, 4, 6, 6, 6, 6)",6,True,,69
+99,False,0,,,False,invalid_random_target,69
+100,False,72,"(5, 4, 6, 5, 6, 4)",4,False,duplicate,69
+101,False,84,"(5, 6, 5, 2, 5, 5)",2,True,,70
+102,True,74,"(6, 6, 5, 6, 8, 8)",68,True,,71
+103,False,84,"(5, 6, 5, 3, 6, 5)",76,True,,72
+104,False,0,,,False,invalid_random_target,72
+105,False,67,"(5, 4, 5, 5, 6, 4)",42,True,,73
+106,False,67,"(5, 4, 7, 5, 6, 5)",6,True,,74
+107,False,0,,,False,invalid_random_target,74
+108,False,63,"(5, 6, 7, 7, 8, 7)",3,True,,75
+109,False,73,"(6, 4, 4, 8, 5, 4)",65,True,,76
+110,False,81,"(4, 6, 6, 8, 8, 6)",11,True,,77
+111,False,73,"(6, 4, 4, 6, 6, 5)",2,False,duplicate,77
+112,False,84,"(6, 6, 5, 2, 3, 6)",20,True,,78
+113,False,84,"(5, 6, 6, 6, 7, 6)",1,True,,79
+114,False,84,"(6, 6, 5, 4, 6, 5)",5,True,,80
+115,False,0,,,False,invalid_random_target,80
+116,False,70,"(6, 4, 3, 4, 7, 3)",65,True,,81
+117,False,38,"(6, 6, 7, 7, 8, 7)",1,False,duplicate,81
+118,False,0,,,False,invalid_random_target,81
+119,False,84,"(5, 6, 5, 3, 3, 4)",32,True,,82
+120,False,0,,,False,invalid_random_target,82
+121,False,84,"(6, 6, 5, 3, 4, 4)",5,True,,83
+122,True,74,"(6, 6, 5, 6, 8, 6)",67,True,,84
+123,False,72,"(6, 5, 4, 8, 5, 5)",6,True,,85
+124,False,0,,,False,invalid_random_target,85
+125,True,74,"(6, 6, 7, 6, 8, 6)",9,True,,86
+126,False,72,"(6, 4, 5, 5, 5, 3)",54,True,,87
+127,False,0,,,False,invalid_random_target,87
+128,True,74,"(6, 6, 5, 6, 8, 8)",68,False,duplicate,87
+129,True,74,"(5, 6, 6, 6, 8, 7)",11,True,,88
+130,False,0,,,False,invalid_random_target,88
+131,False,0,,,False,invalid_random_target,88
+132,False,0,,,False,invalid_random_target,88
+133,False,84,"(5, 6, 5, 5, 5, 6)",6,True,,89
+134,False,84,"(5, 6, 7, 3, 3, 4)",25,True,,90
+135,False,0,,,False,invalid_random_target,90
+136,False,70,"(7, 3, 3, 4, 7, 3)",49,True,,91
+137,False,84,"(5, 6, 5, 4, 5, 5)",1,False,duplicate,91
+138,True,74,"(6, 5, 6, 6, 8, 8)",34,True,,92
+139,False,0,,,False,invalid_random_target,92
+140,False,84,"(5, 6, 5, 4, 3, 5)",6,False,duplicate,92
+141,False,79,"(5, 6, 7, 4, 4, 4)",2,True,,93
+142,False,83,"(6, 6, 6, 2, 4, 6)",3,True,,94
+143,False,84,"(5, 6, 5, 5, 4, 5)",2,True,,95
+144,False,83,"(4, 5, 6, 6, 6, 5)",2,True,,96
+145,False,84,"(5, 6, 5, 3, 3, 6)",8,True,,97
+146,False,83,"(4, 6, 4, 5, 6, 7)",7,True,,98
+147,False,73,"(6, 4, 5, 6, 5, 5)",1,True,,99
+148,False,64,"(6, 4, 6, 6, 7, 6)",8,True,,100
+149,False,0,,,False,invalid_random_target,100
+150,False,0,,,False,invalid_random_target,100
+151,False,82,"(5, 6, 6, 7, 7, 7)",5,False,duplicate,100
+152,True,74,"(6, 4, 6, 6, 8, 7)",59,True,,101
+153,False,84,"(5, 4, 5, 2, 3, 5)",49,True,,102
+154,False,72,"(5, 4, 4, 8, 5, 3)",60,True,,103
+155,False,79,"(6, 6, 7, 3, 3, 3)",51,True,,104
+156,False,84,"(5, 6, 5, 4, 7, 5)",3,False,duplicate,104
+157,False,73,"(6, 4, 5, 5, 8, 5)",6,True,,105
+158,False,63,"(4, 6, 7, 7, 8, 6)",12,True,,106
+159,False,84,"(5, 7, 5, 2, 3, 6)",66,True,,107
+160,False,66,"(6, 6, 7, 6, 9, 7)",1,True,,108
+161,False,0,,,False,invalid_random_target,108
+162,False,72,"(5, 4, 5, 4, 3, 5)",5,True,,109
+163,False,83,"(5, 7, 6, 7, 6, 7)",7,True,,110
+164,False,0,,,False,invalid_random_target,110
+165,False,0,,,False,invalid_random_target,110
+166,False,0,,,False,invalid_random_target,110
+167,False,72,"(5, 4, 5, 4, 3, 5)",5,False,duplicate,110
+168,False,84,"(5, 6, 5, 6, 9, 5)",34,True,,111
+169,False,0,,,False,invalid_random_target,111
+170,False,84,"(4, 6, 5, 6, 6, 7)",5,True,,112
+171,False,67,"(5, 5, 6, 5, 7, 4)",5,True,,113
+172,False,74,"(6, 6, 7, 5, 3, 3)",12,True,,114
+173,False,0,,,False,invalid_random_target,114
+174,False,0,,,False,invalid_random_target,114
+175,False,81,"(4, 7, 6, 8, 6, 7)",29,True,,115
+176,True,74,"(6, 6, 6, 7, 8, 7)",15,False,duplicate,115
+177,False,84,"(6, 7, 5, 2, 3, 5)",38,True,,116
+178,False,83,"(4, 4, 4, 5, 5, 6)",51,True,,117
+179,False,0,,,False,invalid_random_target,117
+180,False,84,"(5, 6, 4, 3, 7, 5)",79,True,,118
+181,False,83,"(6, 6, 6, 7, 6, 7)",2,True,,119
+182,False,0,,,False,invalid_random_target,119
+183,False,0,,,False,invalid_random_target,119
+184,False,84,"(5, 6, 5, 1, 3, 4)",80,True,,120
+185,False,72,"(6, 4, 5, 6, 7, 7)",8,True,,121
+186,False,0,,,False,invalid_random_target,121
+187,False,78,"(5, 6, 7, 4, 6, 4)",1,True,,122
+188,False,72,"(6, 6, 7, 5, 5, 3)",1,True,,123
+189,False,73,"(6, 4, 5, 5, 7, 6)",3,True,,124
+190,False,72,"(5, 4, 6, 5, 5, 5)",5,False,duplicate,124
+191,False,84,"(5, 7, 5, 2, 4, 7)",8,True,,125
+192,False,72,"(6, 6, 8, 5, 4, 3)",12,True,,126
+193,False,0,,,False,invalid_random_target,126
+194,False,0,,,False,invalid_random_target,126
+195,False,0,,,False,invalid_random_target,126
+196,True,74,"(6, 6, 7, 6, 7, 7)",7,False,duplicate,126
+197,False,70,"(5, 4, 3, 4, 6, 3)",43,True,,127
+198,False,72,"(5, 4, 4, 5, 5, 5)",35,True,,128
+199,False,72,"(6, 4, 5, 4, 3, 6)",18,True,,129
+200,False,83,"(4, 5, 4, 5, 5, 8)",40,True,,130
+201,False,0,,,False,invalid_random_target,130
+202,False,0,,,False,invalid_random_target,130
+203,False,82,"(4, 5, 6, 5, 5, 8)",4,True,,131
+204,True,74,"(6, 6, 7, 6, 8, 6)",9,False,duplicate,131
+205,False,72,"(6, 5, 5, 5, 5, 4)",3,True,,132
+206,False,81,"(4, 7, 6, 7, 7, 7)",3,True,,133
+207,False,84,"(5, 6, 6, 5, 4, 4)",3,True,,134
+208,True,74,"(5, 7, 6, 6, 8, 7)",21,True,,135
+209,False,84,"(5, 6, 5, 5, 3, 6)",10,True,,136
+210,False,84,"(5, 6, 2, 3, 7, 5)",83,True,,137
+211,False,72,"(5, 5, 5, 2, 4, 5)",3,True,,138
+212,False,0,,,False,invalid_random_target,138
+213,False,71,"(5, 4, 4, 8, 7, 3)",13,True,,139
+214,True,74,"(6, 6, 6, 6, 8, 6)",18,False,duplicate,139
+215,False,72,"(4, 4, 5, 5, 6, 6)",1,True,,140
+216,False,81,"(5, 7, 6, 7, 6, 7)",1,False,duplicate,140
+217,False,84,"(5, 7, 4, 4, 7, 5)",16,True,,141
+218,False,72,"(5, 4, 4, 5, 6, 6)",3,True,,142
+219,False,83,"(4, 7, 6, 6, 8, 7)",14,True,,143
+220,False,71,"(5, 4, 3, 8, 8, 3)",53,True,,144
+221,True,74,"(7, 6, 6, 6, 7, 7)",50,True,,145
+222,False,0,,,False,invalid_random_target,145
+223,False,83,"(4, 5, 5, 6, 6, 6)",1,False,duplicate,145
+224,False,72,"(4, 4, 5, 5, 5, 7)",10,True,,146
+225,False,84,"(5, 6, 4, 6, 7, 4)",82,True,,147
+226,False,74,"(6, 6, 5, 3, 3, 3)",45,True,,148
+227,False,72,"(5, 4, 4, 5, 5, 5)",33,False,duplicate,148
+228,False,0,,,False,invalid_random_target,148
+229,True,74,"(6, 6, 6, 7, 8, 8)",49,True,,149
+230,False,84,"(6, 6, 5, 3, 5, 5)",5,True,,150
+231,False,72,"(5, 4, 5, 2, 3, 3)",64,True,,151
+232,False,70,"(4, 4, 6, 5, 5, 6)",24,True,,152
+233,False,79,"(4, 5, 6, 5, 9, 7)",54,True,,153
+234,False,69,"(7, 3, 4, 4, 7, 4)",1,True,,154
+235,False,0,,,False,invalid_random_target,154
+236,True,74,"(6, 7, 6, 6, 7, 7)",37,True,,155
+237,False,72,"(4, 5, 5, 5, 5, 6)",4,True,,156
+238,False,81,"(4, 8, 6, 7, 6, 7)",30,True,,157
+239,False,72,"(6, 5, 5, 4, 3, 6)",20,True,,158
+240,False,71,"(5, 4, 5, 8, 5, 4)",1,True,,159
+241,False,72,"(6, 4, 5, 4, 3, 8)",35,True,,160
+242,False,71,"(6, 4, 4, 8, 7, 2)",58,True,,161
+243,False,71,"(6, 4, 5, 5, 4, 8)",4,True,,162
+244,False,84,"(5, 6, 6, 4, 8, 5)",8,True,,163
+245,False,0,,,False,invalid_random_target,163
+246,True,74,"(6, 5, 6, 6, 8, 6)",33,True,,164
+247,False,83,"(5, 6, 6, 7, 6, 8)",9,True,,165
+248,False,83,"(4, 6, 4, 5, 5, 7)",27,True,,166
+249,False,72,"(5, 4, 4, 5, 6, 6)",3,False,duplicate,166
+250,False,84,"(5, 7, 4, 4, 8, 6)",15,True,,167
+251,False,82,"(6, 6, 4, 8, 4, 5)",63,True,,168
+252,False,72,"(5, 4, 5, 2, 5, 3)",2,True,,169
+253,False,83,"(5, 7, 5, 5, 8, 6)",2,True,,170
+254,False,83,"(5, 6, 6, 6, 8, 5)",6,True,,171
+255,False,0,,,False,invalid_random_target,171
+256,False,70,"(5, 4, 4, 7, 8, 3)",6,True,,172
+257,False,80,"(5, 6, 5, 5, 7, 4)",42,True,,173
+258,False,72,"(5, 4, 5, 3, 5, 4)",1,True,,174
+259,False,83,"(6, 6, 4, 3, 3, 3)",51,True,,175
+260,False,0,,,False,invalid_random_target,175
+261,False,0,,,False,invalid_random_target,175
+262,False,69,"(7, 3, 5, 4, 7, 3)",4,True,,176
+263,False,71,"(6, 5, 5, 3, 3, 8)",39,True,,177
+264,False,0,,,False,invalid_random_target,177
+265,False,71,"(7, 4, 5, 4, 4, 8)",8,True,,178
+266,False,73,"(8, 3, 3, 4, 7, 4)",59,True,,179
+267,False,82,"(7, 6, 5, 3, 3, 8)",33,True,,180
+268,False,84,"(5, 6, 3, 5, 3, 6)",79,True,,181
+269,False,84,"(5, 7, 3, 2, 3, 6)",75,True,,182
+270,False,0,,,False,invalid_random_target,182
+271,False,82,"(4, 6, 6, 6, 9, 7)",20,True,,183
+272,True,74,"(6, 6, 7, 7, 8, 7)",6,False,duplicate,183
+273,False,70,"(6, 4, 3, 4, 6, 4)",22,True,,184
+274,False,0,,,False,invalid_random_target,184
+275,False,83,"(6, 6, 4, 4, 4, 3)",4,True,,185
+276,False,72,"(6, 4, 5, 7, 7, 2)",11,True,,186
+277,True,74,"(6, 5, 7, 6, 8, 7)",3,True,,187
+278,False,83,"(5, 7, 3, 3, 4, 6)",2,True,,188
+279,False,0,,,False,invalid_random_target,188
+280,True,74,"(6, 5, 5, 6, 8, 7)",60,True,,189
+281,False,0,,,False,invalid_random_target,189
+282,False,0,,,False,invalid_random_target,189
+283,True,74,"(6, 6, 7, 6, 8, 7)",1,True,,191
