@@ -34,9 +34,7 @@ Generated ROS folders are excluded:
     build/
     install/
     log/
-
-Note: src/kinova_description/meshes and src/kinova_description/urdf are symlinks to the corresponding folders in src/jaco_description.
-
+    
 ---
 
 ## Main Planner Files
