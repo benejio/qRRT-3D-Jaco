@@ -202,6 +202,32 @@ If MoveIt is restarted, obstacles usually need to be re-added.
       --x 0.25 --y -0.22 --z 0.52 \
       --sx 0.09
 
+### Add Scene 4 Obstacles
+
+Scene 4 uses the same shelf location, moves the cylinder to the center of the shelf, and places the sphere on the `+y` side of the cylinder.
+
+    ros2 run qrrt_planner add_box_obstacle --remove --id box1
+    ros2 run qrrt_planner add_box_obstacle --remove --id cylinder1
+    ros2 run qrrt_planner add_box_obstacle --remove --id sphere1
+
+    ros2 run qrrt_planner add_box_obstacle \
+      --id box1 \
+      --shape box \
+      --x 0.25 --y 0.00 --z 0.38 \
+      --sx 0.30 --sy 0.95 --sz 0.10
+
+    ros2 run qrrt_planner add_box_obstacle \
+      --id cylinder1 \
+      --shape cylinder \
+      --x 0.25 --y 0.00 --z 0.58 \
+      --sx 0.07 --sz 0.30
+
+    ros2 run qrrt_planner add_box_obstacle \
+      --id sphere1 \
+      --shape sphere \
+      --x 0.25 --y 0.25 --z 0.52 \
+      --sx 0.09
+
 ---
 
 ## Run Classical Grid-RRT
@@ -317,6 +343,32 @@ Radians:
 
     q_goal = [-1.431, 4.189, 5.009, 2.251, -2.461, -1.536]
 
+### Scenario 4
+
+Scene 4 keeps the shelf in the same position as the earlier scenes, places the cylinder at the center of the shelf, and places the spherical obstacle on the `+y` side of the cylinder. The start and goal configurations are selected on the opposite, non-ball side of the cylinder.
+
+Obstacle layout:
+
+    shelf/box: center = (0.25, 0.00, 0.38), size = (0.30, 0.95, 0.10)
+    cylinder:  center = (0.25, 0.00, 0.58), radius = 0.07, height = 0.30
+    sphere:    center = (0.25, 0.25, 0.52), radius = 0.09
+
+Start RViz degrees:
+
+    [-120 deg, 183 deg, 97 deg, -73 deg, 64 deg, 135 deg]
+
+Start radians:
+
+    q_start = [-2.094, 3.194, 1.693, -1.274, 1.117, 2.356]
+
+Goal RViz degrees:
+
+    [-95 deg, 180 deg, 267 deg, 117 deg, -136 deg, -135 deg]
+
+Goal radians:
+
+    q_goal = [-1.658, 3.142, 4.660, 2.042, -2.374, -2.356]
+
 ---
 
 ## Candidate Sweeps
@@ -335,11 +387,11 @@ Quantum uses:
 
 The requested candidate count is not always the usable candidate count. Invalid states, invalid edges, duplicates, and local grid limits reduce the actual candidate set.
 
-Best observed quantum candidate settings so far:
+Best single successful Grover-guided candidate settings observed so far:
 
-    Scenario 1: k = 512
-    Scenario 2: k = 256
-    Scenario 3: k = 512
+    Scenario 1: k_c = 512
+    Scenario 2: k_c = 256
+    Scenario 3: k_c = 128
 
 Common quantum settings used in the sweeps:
 
@@ -362,14 +414,11 @@ The results folder includes its own README:
 High-level current takeaways:
 
 - A* works, but becomes slow in harder 6D grid scenarios.
-- Classical grid-RRT is generally fast and stable.
-- Quantum grid-RRT is less stable, but showed promising behavior in Scenario 3.
-- The strongest observed result so far was Scenario 3 at k = 512:
+- Classical grid-RRT is generally more reliable across the 20-seed Scenario 3 sweep.
+- Grover-guided grid-RRT is less stable overall, but it can require fewer iterations among successful runs in some candidate-count settings.
+- Scenario 3 showed candidate-set saturation: increasing the requested candidate count did not always increase the usable candidate pool after filtering.
 
-    Classical grid-RRT: about 45.8 s
-    Quantum grid-RRT:   about 17.6 s
-
-This does not prove quantum speedup. It suggests that Grover-biased candidate selection may improve sampling behavior in some difficult planning cases.
+These results do not prove quantum speedup. They suggest that Grover-guided candidate selection can influence sampling behavior in some difficult planning cases, but its benefit depends on candidate-set construction, marked-subset quality, and random seed.
 
 ---
 
@@ -405,13 +454,16 @@ Quantum-specific metrics include:
 
 ## Current Follow-Up Experiment
 
-After the candidate-count sweeps, the next step is to run seed sweeps using the best observed candidate settings:
+The current follow-up experiment is Scenario 4, which tests a shelf scene where the cylinder is centered on the shelf, the sphere is placed on the +y side of the cylinder, and the start/goal configurations are on the non-ball side.
 
-    Scenario 1: k = 512
-    Scenario 2: k = 256
-    Scenario 3: k = 512
+Scenario 4 is evaluated over 20 random seeds and candidate counts:
 
-Seed sweeps test whether the observed performance trends are stable across random trials.
+    32, 64, 128, 256, 512, 1024, 2048
+
+The outputs are written to:
+
+    results/crrt_scenario_4_candidate_seed_sweep.csv
+    results/qrrt_scenario_4_candidate_seed_sweep.csv
 
 ---
 
