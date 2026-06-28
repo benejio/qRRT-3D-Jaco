@@ -385,7 +385,7 @@ Quantum uses:
 
     --quantum-candidates
 
-The requested candidate count is not always the usable candidate count. Invalid states, invalid edges, duplicates, and local grid limits reduce the actual candidate set.
+The requested candidate count is not always the usable candidate count. Invalid states, invalid edges, candidates already present in the tree, duplicates, and local grid limits reduce the actual candidate set before it is sent to the quantum sampler. The resulting database is randomized before basis-state encoding so Grover receives an unordered valid-candidate list.
 
 Best single successful Grover-guided candidate settings observed so far:
 
@@ -395,9 +395,28 @@ Best single successful Grover-guided candidate settings observed so far:
 
 Common quantum settings used in the sweeps:
 
-    quantum_top_k = 8
     quantum_iters = 1
     quantum_shots = 128
+    quantum_best_rounds = 3
+    quantum_target_weight = 1.0
+    quantum_goal_weight = 1.0
+
+The older `quantum_top_k` setting is deprecated for qRRT. The qRRT implementation no longer classically ranks the candidate list and marks the top-k candidates.
+
+---
+
+## Current qRRT Candidate-Selection Behavior
+
+The qRRT planner now separates candidate usability from quantum selection:
+
+1. ROS 2 / MoveIt performs collision and edge checking.
+2. The planner builds a valid local candidate database and removes candidates already in the tree.
+3. The valid candidate list is shuffled so the database is unordered.
+4. The quantum sampler starts from a random incumbent candidate.
+5. Grover marks candidates whose local extension score beats the incumbent and samples a better candidate.
+6. This improvement search repeats for `quantum_best_rounds`.
+
+The local extension score rewards progress toward the current RRT random target and the final goal. This makes Grover responsible for searching the unordered valid list for a better expansion candidate, rather than merely sampling from a classically sorted top-k list.
 
 ---
 
@@ -439,16 +458,23 @@ The runner scripts report metrics such as:
     invalid_chosen_state_rejections
     invalid_chosen_edge_rejections
     avg_candidate_count
-    avg_selected_rank
     path_waypoints
+
+Classical grid-RRT still reports `avg_selected_rank` for its top-k baseline.
 
 Quantum-specific metrics include:
 
-    avg_good_set_size
+    avg_marked_set_size
+    grover_rounds_total
+    grover_improvements
+    avg_initial_score
+    avg_selected_score
     quantum_candidates
-    quantum_top_k
     quantum_iters
     quantum_shots
+    quantum_best_rounds
+    quantum_target_weight
+    quantum_goal_weight
 
 ---
 

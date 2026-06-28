@@ -7,9 +7,9 @@ Summary:
     Each grid index represents one possible robot joint configuration. The
     planner grows a tree from the start grid state toward randomly sampled
     target grid states. At each expansion, it finds the nearest existing tree
-    node, builds a local set of valid neighboring candidates, marks the best
-    candidates as "good", and uses Grover-weighted sampling to select one
-    candidate.
+    node, builds an unordered local database of valid neighboring candidates,
+    and uses Grover improvement search to select a strong tree-extension
+    candidate from that unordered database.
 
     This planner is compared against:
         - Classical grid-RRT in crrt_grid.py
@@ -38,10 +38,7 @@ from qrrt_planner.grid_joint_space import (
     nearest_valid_grid_index,
     q_to_grid,
 )
-from qrrt_planner.grid_quantum_sampler import (
-    choose_good_candidate_indices,
-    quantum_select_grid_candidate,
-)
+from qrrt_planner.grid_quantum_sampler import quantum_select_grid_candidate
 
 
 # Type alias for a grid-state validity checker.
@@ -157,6 +154,7 @@ def local_candidate_set(
     edge_valid_idx: GridEdgeValidFn,
     max_candidates: int = 64,
     max_radius: int = 2,
+    excluded: Optional[set[GridIndex]] = None,
 ) -> List[GridIndex]:
     """
     Build a local set of valid candidate states near a tree node.
@@ -165,7 +163,8 @@ def local_candidate_set(
     neighbor is kept as a candidate only if:
         1. the state is valid,
         2. the edge from center_idx to that state is valid,
-        3. it has not already been added to this candidate set.
+        3. it has not already been added to this candidate set,
+        4. it is not already in the tree, when excluded is provided.
 
     Args:
         center_idx:
@@ -180,12 +179,16 @@ def local_candidate_set(
             Maximum number of candidates to return.
         max_radius:
             Maximum number of neighbor-expansion layers.
+        excluded:
+            Optional set of grid states to keep out of the candidate database,
+            usually the states already present in the RRT tree.
 
     Returns:
         List of valid local candidate grid indices.
     """
     candidates: List[GridIndex] = []
     seen = set()
+    excluded = excluded or set()
 
     frontier = [center_idx]
     visited = {center_idx}
@@ -198,6 +201,8 @@ def local_candidate_set(
                     continue
                 visited.add(nbr)
 
+                if nbr in excluded:
+                    continue
                 if not is_valid_idx(nbr):
                     continue
                 if not edge_valid_idx(center_idx, nbr):
@@ -229,12 +234,14 @@ def qrrt_grid(
     goal_radius_idx: float = 0.0,
     edge_step: float = 0.05,
     quantum_candidates: int = 64,
-    quantum_top_k: int = 8,
     quantum_iters: int = 1,
     quantum_shots: int = 64,
     quantum_use_ibm: bool = False,
     quantum_backend: str = "ibm_torino",
-    quantum_progress_weight: float = 1.0,
+    quantum_target_weight: float = 1.0,
+    quantum_goal_weight: float = 1.0,
+    quantum_best_rounds: int = 3,
+    quantum_score_margin: float = 1e-9,
     rng_seed: int = 0,
     debug: bool = False,
 ):
@@ -260,8 +267,6 @@ def qrrt_grid(
             Step size used for edge validity checking.
         quantum_candidates:
             Maximum number of local candidates to consider per expansion.
-        quantum_top_k:
-            Number of candidates marked as good for Grover amplification.
         quantum_iters:
             Number of Grover iterations.
         quantum_shots:
@@ -270,8 +275,15 @@ def qrrt_grid(
             If True, use an IBM backend path where supported.
         quantum_backend:
             IBM backend name.
-        quantum_progress_weight:
-            Weight applied when scoring candidates by progress toward goal.
+        quantum_target_weight:
+            Weight applied to progress toward the current RRT target.
+        quantum_goal_weight:
+            Weight applied to progress toward the final goal.
+        quantum_best_rounds:
+            Number of Grover improvement rounds used to search for a better
+            candidate in the unordered database.
+        quantum_score_margin:
+            Minimum score improvement required to replace the incumbent.
         rng_seed:
             Random seed for reproducible runs.
         debug:
@@ -329,8 +341,11 @@ def qrrt_grid(
         "invalid_chosen_edge_rejections": 0,
         "candidate_count_total": 0,
         "candidate_count_nonempty_iters": 0,
-        "good_set_size_total": 0,
-        "selected_rank_total": 0,
+        "marked_set_size_total": 0,
+        "grover_rounds_total": 0,
+        "selected_score_total": 0.0,
+        "initial_score_total": 0.0,
+        "grover_improvements": 0,
         "path_waypoints": None,
         "trace": [] if debug else None,
     }
@@ -357,7 +372,9 @@ def qrrt_grid(
                     "goal_sampled": goal_sampled,
                     "candidate_count": 0,
                     "chosen_idx": None,
-                    "chosen_rank": None,
+                    "chosen_score": None,
+                    "initial_score": None,
+                    "grover_rounds": 0,
                     "accepted": False,
                     "rejection_reason": "invalid_random_target",
                     "tree_nodes": len(nodes),
@@ -376,6 +393,7 @@ def qrrt_grid(
             edge_valid_idx=edge_valid_idx,
             max_candidates=quantum_candidates,
             max_radius=2,
+            excluded=visited_tree,
         )
 
         stats["candidate_count_total"] = int(stats["candidate_count_total"]) + len(candidates)
@@ -388,7 +406,9 @@ def qrrt_grid(
                     "goal_sampled": goal_sampled,
                     "candidate_count": 0,
                     "chosen_idx": None,
-                    "chosen_rank": None,
+                    "chosen_score": None,
+                    "initial_score": None,
+                    "grover_rounds": 0,
                     "accepted": False,
                     "rejection_reason": "empty_candidate_set",
                     "tree_nodes": len(nodes),
@@ -398,47 +418,44 @@ def qrrt_grid(
         stats["candidate_count_nonempty_iters"] = int(stats["candidate_count_nonempty_iters"]) + 1
         stats["quantum_calls"] = int(stats["quantum_calls"]) + 1
 
-        # Identify the candidates that should be marked as good for Grover.
-        good_indices = choose_good_candidate_indices(
-            candidates=candidates,
-            goal_idx=goal_idx,
-            progress_weight=quantum_progress_weight,
-            top_k=quantum_top_k,
-        )
-        stats["good_set_size_total"] = int(stats["good_set_size_total"]) + len(good_indices)
+        # Randomize database order before encoding candidates as basis states.
+        # Grover receives an unordered valid-candidate database.
+        order = rng.permutation(len(candidates))
+        candidates = [candidates[int(i)] for i in order]
 
-        # Select a candidate using the Grover-weighted sampler.
-        idx_new = quantum_select_grid_candidate(
+        # Select a candidate with Grover improvement search. No candidate
+        # ranking or top-k classical preselection is performed here.
+        selection = quantum_select_grid_candidate(
             candidates=candidates,
+            near_idx=idx_near,
+            target_idx=q_rand_idx,
             goal_idx=goal_idx,
             rng=rng,
-            top_k=quantum_top_k,
             n_iters=quantum_iters,
             shots=quantum_shots,
             use_ibm=quantum_use_ibm,
             ibm_backend_name=quantum_backend,
-            progress_weight=quantum_progress_weight,
+            target_weight=quantum_target_weight,
+            goal_weight=quantum_goal_weight,
+            best_rounds=quantum_best_rounds,
+            score_margin=quantum_score_margin,
         )
+        idx_new = selection.candidate
 
-        # Compute the selected candidate's rank by distance-to-goal.
-        ranked = sorted(
-            [
-                (
-                    float(
-                        np.linalg.norm(
-                            np.asarray(c, dtype=float) - np.asarray(goal_idx, dtype=float)
-                        )
-                    ),
-                    i,
-                )
-                for i, c in enumerate(candidates)
-            ],
-            key=lambda x: x[0],
+        stats["marked_set_size_total"] = (
+            int(stats["marked_set_size_total"]) + selection.marked_count_total
         )
-        chosen_rank = next(
-            rank + 1 for rank, (_, i) in enumerate(ranked) if candidates[i] == idx_new
+        stats["grover_rounds_total"] = (
+            int(stats["grover_rounds_total"]) + selection.grover_rounds
         )
-        stats["selected_rank_total"] = int(stats["selected_rank_total"]) + chosen_rank
+        stats["selected_score_total"] = (
+            float(stats["selected_score_total"]) + selection.selected_score
+        )
+        stats["initial_score_total"] = (
+            float(stats["initial_score_total"]) + selection.initial_score
+        )
+        if selection.improved:
+            stats["grover_improvements"] = int(stats["grover_improvements"]) + 1
 
         rejection_reason = None
         accepted = False
@@ -476,7 +493,9 @@ def qrrt_grid(
                             "goal_sampled": goal_sampled,
                             "candidate_count": len(candidates),
                             "chosen_idx": idx_new,
-                            "chosen_rank": chosen_rank,
+                            "chosen_score": selection.selected_score,
+                            "initial_score": selection.initial_score,
+                            "grover_rounds": selection.grover_rounds,
                             "accepted": True,
                             "rejection_reason": None,
                             "tree_nodes": len(nodes),
@@ -490,7 +509,9 @@ def qrrt_grid(
                 "goal_sampled": goal_sampled,
                 "candidate_count": len(candidates),
                 "chosen_idx": idx_new,
-                "chosen_rank": chosen_rank,
+                "chosen_score": selection.selected_score,
+                "initial_score": selection.initial_score,
+                "grover_rounds": selection.grover_rounds,
                 "accepted": accepted,
                 "rejection_reason": rejection_reason,
                 "tree_nodes": len(nodes),

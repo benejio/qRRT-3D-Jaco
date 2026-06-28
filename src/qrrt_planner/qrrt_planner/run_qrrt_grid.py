@@ -162,11 +162,20 @@ def main():
     parser.add_argument("--goal-radius-idx", type=float, default=0.0)
     parser.add_argument("--edge-step", type=float, default=0.05)
     parser.add_argument("--quantum-candidates", type=int, default=64)
-    parser.add_argument("--quantum-top-k", type=int, default=8)
+    parser.add_argument(
+        "--quantum-top-k",
+        type=int,
+        default=None,
+        help="Deprecated; kept only so old sweep commands do not fail.",
+    )
     parser.add_argument("--quantum-iters", type=int, default=1)
     parser.add_argument("--quantum-shots", type=int, default=64)
     parser.add_argument("--quantum-use-ibm", action="store_true")
     parser.add_argument("--quantum-backend", type=str, default="ibm_torino")
+    parser.add_argument("--quantum-target-weight", type=float, default=1.0)
+    parser.add_argument("--quantum-goal-weight", type=float, default=1.0)
+    parser.add_argument("--quantum-best-rounds", type=int, default=3)
+    parser.add_argument("--quantum-score-margin", type=float, default=1e-9)
     parser.add_argument("--seed", type=int, default=0)
     parser.add_argument("--csv-out", type=str, default=None)
     parser.add_argument("--debug-log", type=str, default=None)
@@ -207,12 +216,14 @@ def main():
         goal_radius_idx=args.goal_radius_idx,
         edge_step=args.edge_step,
         quantum_candidates=args.quantum_candidates,
-        quantum_top_k=args.quantum_top_k,
         quantum_iters=args.quantum_iters,
         quantum_shots=args.quantum_shots,
         quantum_use_ibm=args.quantum_use_ibm,
         quantum_backend=args.quantum_backend,
-        quantum_progress_weight=1.0,
+        quantum_target_weight=args.quantum_target_weight,
+        quantum_goal_weight=args.quantum_goal_weight,
+        quantum_best_rounds=args.quantum_best_rounds,
+        quantum_score_margin=args.quantum_score_margin,
         rng_seed=args.seed,
         debug=bool(args.debug_log),
     )
@@ -226,19 +237,24 @@ def main():
             / float(stats["candidate_count_nonempty_iters"])
         )
 
-    # Average number of candidates marked as good for Grover.
-    avg_good_set_size = 0.0
-    if int(stats["quantum_calls"]) > 0:
-        avg_good_set_size = (
-            float(stats["good_set_size_total"])
-            / float(stats["quantum_calls"])
+    # Average number of oracle-marked candidates per Grover improvement round.
+    avg_marked_set_size = 0.0
+    if int(stats["grover_rounds_total"]) > 0:
+        avg_marked_set_size = (
+            float(stats["marked_set_size_total"])
+            / float(stats["grover_rounds_total"])
         )
 
-    # Average rank of the selected candidate by distance-to-goal.
-    avg_selected_rank = 0.0
+    # Average local extension score before and after Grover improvement search.
+    avg_initial_score = 0.0
+    avg_selected_score = 0.0
     if int(stats["quantum_calls"]) > 0:
-        avg_selected_rank = (
-            float(stats["selected_rank_total"])
+        avg_initial_score = (
+            float(stats["initial_score_total"])
+            / float(stats["quantum_calls"])
+        )
+        avg_selected_score = (
+            float(stats["selected_score_total"])
             / float(stats["quantum_calls"])
         )
 
@@ -267,8 +283,11 @@ def main():
     print(f"invalid chosen state:    {stats['invalid_chosen_state_rejections']}")
     print(f"invalid chosen edge:     {stats['invalid_chosen_edge_rejections']}")
     print(f"avg candidate count:     {avg_candidate_count:.3f}")
-    print(f"avg good-set size:       {avg_good_set_size:.3f}")
-    print(f"avg selected rank:       {avg_selected_rank:.3f}")
+    print(f"grover rounds total:     {stats['grover_rounds_total']}")
+    print(f"grover improvements:     {stats['grover_improvements']}")
+    print(f"avg marked-set size:     {avg_marked_set_size:.3f}")
+    print(f"avg initial score:       {avg_initial_score:.3f}")
+    print(f"avg selected score:      {avg_selected_score:.3f}")
 
     if path_idx is not None:
         print(f"path waypoints:          {len(path_idx)}")
@@ -296,10 +315,14 @@ def main():
             "candidate_count_total": int(stats["candidate_count_total"]),
             "candidate_count_nonempty_iters": int(stats["candidate_count_nonempty_iters"]),
             "avg_candidate_count": avg_candidate_count,
-            "good_set_size_total": int(stats["good_set_size_total"]),
-            "avg_good_set_size": avg_good_set_size,
-            "selected_rank_total": int(stats["selected_rank_total"]),
-            "avg_selected_rank": avg_selected_rank,
+            "marked_set_size_total": int(stats["marked_set_size_total"]),
+            "grover_rounds_total": int(stats["grover_rounds_total"]),
+            "avg_marked_set_size": avg_marked_set_size,
+            "initial_score_total": float(stats["initial_score_total"]),
+            "selected_score_total": float(stats["selected_score_total"]),
+            "avg_initial_score": avg_initial_score,
+            "avg_selected_score": avg_selected_score,
+            "grover_improvements": int(stats["grover_improvements"]),
             "path_waypoints": stats["path_waypoints"],
             "bins_per_joint": str(list(bins_per_joint)),
             "total_grid_states": total_grid_states(bins_per_joint),
@@ -314,11 +337,14 @@ def main():
             "goal_sample_rate": args.goal_sample_rate,
             "goal_radius_idx": args.goal_radius_idx,
             "quantum_candidates": args.quantum_candidates,
-            "quantum_top_k": args.quantum_top_k,
             "quantum_iters": args.quantum_iters,
             "quantum_shots": args.quantum_shots,
             "quantum_use_ibm": args.quantum_use_ibm,
             "quantum_backend": args.quantum_backend,
+            "quantum_target_weight": args.quantum_target_weight,
+            "quantum_goal_weight": args.quantum_goal_weight,
+            "quantum_best_rounds": args.quantum_best_rounds,
+            "quantum_score_margin": args.quantum_score_margin,
         }
         append_csv_row(args.csv_out, row)
 

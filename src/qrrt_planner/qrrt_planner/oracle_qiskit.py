@@ -480,8 +480,9 @@ def grover_weights_for_region(
     else:
         probs[:] = 1.0 / float(n_states)
 
-    # Guard against unreliable distributions where almost no shots landed on
-    # marked states. This can happen with noisy hardware or poor parameters.
+    # Preserve the measured Grover distribution even when few shots land on
+    # marked states. Low marked-shot counts are part of the quantum sampling
+    # diagnostic and should not be replaced by uniform sampling.
     marked = set(good_indices)
     marked_shots = sum(
         probs[i] * total_shots for i in range(n_states) if i in marked
@@ -490,10 +491,9 @@ def grover_weights_for_region(
     if marked_shots < 10:
         warnings.warn(
             f"Only ~{marked_shots:.0f} shots landed on marked states. "
-            f"Distribution is unreliable; falling back to uniform.",
+            f"Using measured Grover distribution without uniform fallback.",
             RuntimeWarning,
         )
-        probs = np.ones(n_states, dtype=float) / float(n_states)
 
     if return_counts:
         return probs, counts, n_qubits
