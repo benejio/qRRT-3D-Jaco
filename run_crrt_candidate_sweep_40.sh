@@ -5,13 +5,16 @@ cd ~/ws_3dof
 source /opt/ros/humble/setup.bash
 source install/setup.bash
 
-mkdir -p ~/ws_3dof/results/crrt_candidate_sweep_40
+mkdir -p ~/ws_3dof/results/crrt_matched_candidate_sweep_40
 
 COMMON_ARGS="\
   --bins-per-joint 10 \
   --max-iters 2000 \
-  --top-k 8"
-
+  --target-weight 1.0 \
+  --goal-weight 1.0 \
+  --best-rounds 3 \
+  --score-margin 0.0"
+  
 CANDIDATES=(64 128 256 512)
 SEEDS=$(seq 1 40)
 
@@ -146,4 +149,4 @@ run_scene3
 run_scene4
 
 echo "Done."
-echo "Classical results saved in ~/ws_3dof/results/crrt_candidate_sweep_40"
+echo "Classical results saved in ~/ws_3dof/results/crrt_matched_candidate_sweep_40"

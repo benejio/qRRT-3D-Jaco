@@ -8,8 +8,9 @@ Summary:
     The planner grows a tree from the start grid state toward randomly
     sampled target grid states. At each expansion, it finds the nearest
     existing tree node, builds a local set of valid neighboring candidates,
-    scores those candidates by progress toward the goal, and chooses one
-    candidate using a weighted classical selection rule.
+    scores those candidates using the same target-plus-goal local score as the
+    Grover-guided selector, and chooses one candidate using a classical 
+    softmax rule.
 
     This planner is used as the main classical comparison against the
     quantum-guided grid-RRT planner.
@@ -24,8 +25,9 @@ Main concepts:
     local_candidate_set:
         Finds valid neighboring grid states near a tree node.
 
-    choose_classical_candidate:
-        Scores candidates by distance-to-goal and selects from the top-k.
+    choose_matched_classical_candidate:
+        Scores candidates using the matched target-plus-goal score and samples
+        from a softmax distribution over all retained candidates.
 
     crrt_grid:
         Runs the full classical grid-RRT planning loop.
@@ -47,6 +49,7 @@ from qrrt_planner.grid_joint_space import (
     nearest_valid_grid_index,
     q_to_grid,
 )
+from qrrt_planner.grid_quantum_sampler import candidate_extension_score
 
 # Type alias for a function that checks whether a grid state is valid.
 GridStateValidFn = Callable[[GridIndex], bool]
@@ -69,7 +72,17 @@ class GridNode:
     """
     idx: GridIndex
     parent: Optional[int] = None
-
+    
+@dataclass
+class ClassicalSelectionResult:
+    candidate: GridIndex
+    candidate_position: int
+    selected_score: float
+    initial_position: int
+    initial_score: float
+    marked_count_total: int
+    improvement_rounds: int
+    improved: bool
 
 def idx_distance(a: GridIndex, b: GridIndex) -> float:
     """
@@ -169,6 +182,7 @@ def local_candidate_set(
     edge_valid_idx: GridEdgeValidFn,
     max_candidates: int = 64,
     max_radius: int = 2,
+    excluded: Optional[set[GridIndex]] = None,
 ) -> List[GridIndex]:
     """
     Build a local set of valid candidate states near a tree node.
@@ -198,6 +212,7 @@ def local_candidate_set(
     """
     candidates: List[GridIndex] = []
     seen = set()
+    excluded = excluded or set()
 
     frontier = [center_idx]
     visited = {center_idx}
@@ -208,6 +223,9 @@ def local_candidate_set(
             for nbr in grid_neighbors(idx, shape):
                 if nbr in visited:
                     continue
+                if nbr in excluded:
+                    continue
+
                 visited.add(nbr)
 
                 if not is_valid_idx(nbr):
@@ -231,61 +249,82 @@ def local_candidate_set(
     return candidates
 
 
-def choose_classical_candidate(
+def choose_matched_classical_candidate(
     candidates: Sequence[GridIndex],
+    near_idx: GridIndex,
+    target_idx: GridIndex,
     goal_idx: GridIndex,
     rng: np.random.Generator,
-    top_k: int = 8,
-    progress_weight: float = 1.0,
-) -> Tuple[GridIndex, int]:
+    target_weight: float = 1.0,
+    goal_weight: float = 1.0,
+    best_rounds: int = 3,
+    score_margin: float = 1e-9,
+) -> ClassicalSelectionResult:
     """
-    Select one candidate using a classical goal-biased scoring rule.
-
-    Candidates closer to the goal receive higher scores. The function sorts
-    candidates by score, keeps the top_k candidates, and samples from them
-    using softmax-like exponential weights.
-
-    Args:
-        candidates:
-            Candidate grid states.
-        goal_idx:
-            Goal grid state.
-        rng:
-            NumPy random generator.
-        top_k:
-            Number of best candidates eligible for selection.
-        progress_weight:
-            Weight applied to distance-to-goal scoring.
-
-    Returns:
-        Tuple of:
-            selected candidate grid index,
-            rank of the selected candidate within the top-k set.
+    Select one candidate using the same incumbent-improvement structure as the
+    Grover-guided selector, but sample improving candidates classically.
     """
     if not candidates:
-        raise ValueError("No candidates provided to choose_classical_candidate")
+        raise ValueError("No candidates provided to choose_matched_classical_candidate")
 
-    scored: List[Tuple[float, int]] = []
-    for i, idx in enumerate(candidates):
-        d_goal = idx_distance(idx, goal_idx)
-        score = -progress_weight * d_goal
-        scored.append((score, i))
+    if best_rounds < 1:
+        best_rounds = 1
 
-    scored.sort(reverse=True)
+    scores = np.array([
+        candidate_extension_score(
+            candidate_idx=idx,
+            near_idx=near_idx,
+            target_idx=target_idx,
+            goal_idx=goal_idx,
+            target_weight=target_weight,
+            goal_weight=goal_weight,
+        )
+        for idx in candidates
+    ], dtype=float)
 
-    k = max(1, min(top_k, len(scored)))
-    top = scored[:k]
+    incumbent_pos = int(rng.integers(0, len(candidates)))
+    incumbent_score = float(scores[incumbent_pos])
 
-    weights = np.array([np.exp(score) for score, _ in top], dtype=float)
-    if float(np.sum(weights)) <= 0.0:
-        probs = np.full(len(top), 1.0 / len(top), dtype=float)
-    else:
-        probs = weights / np.sum(weights)
+    initial_pos = incumbent_pos
+    initial_score = incumbent_score
+    marked_count_total = 0
+    improvement_rounds = 0
+    improved = False
 
-    chosen_local = int(rng.choice(len(top), p=probs))
-    chosen_idx = top[chosen_local][1]
-    return candidates[chosen_idx], chosen_local + 1
+    for _ in range(best_rounds):
+        marked_positions = [
+            i for i, score in enumerate(scores)
+            if float(score) > incumbent_score + score_margin
+        ]
+        marked_count_total += len(marked_positions)
 
+        if not marked_positions:
+            break
+
+        improvement_rounds += 1
+
+        # Classical analogue of sampling from the oracle-marked improving set.
+        measured_pos = int(rng.choice(marked_positions))
+        measured_score = float(scores[measured_pos])
+
+        if measured_score > incumbent_score + score_margin:
+            incumbent_pos = measured_pos
+            incumbent_score = measured_score
+            improved = True
+        else:
+            break
+
+    return ClassicalSelectionResult(
+        candidate=candidates[incumbent_pos],
+        candidate_position=incumbent_pos,
+        selected_score=float(incumbent_score),
+        initial_position=initial_pos,
+        initial_score=float(initial_score),
+        marked_count_total=int(marked_count_total),
+        improvement_rounds=int(improvement_rounds),
+        improved=bool(improved),
+    )
+    
 
 def crrt_grid(
     q_start: Sequence[float],
@@ -297,10 +336,12 @@ def crrt_grid(
     goal_radius_idx: float = 0.0,
     edge_step: float = 0.05,
     candidate_count: int = 64,
-    top_k: int = 8,
-    progress_weight: float = 1.0,
     rng_seed: int = 0,
     debug: bool = False,
+    target_weight: float = 1.0,
+    goal_weight: float = 1.0,
+    best_rounds: int = 3,
+    score_margin: float = 1e-9,
 ):
     """
     Run classical RRT over a discretized joint-space grid.
@@ -324,10 +365,14 @@ def crrt_grid(
             Step size used for edge validity checking.
         candidate_count:
             Maximum number of local candidates considered per expansion.
-        top_k:
-            Number of best-scoring candidates used for selection.
-        progress_weight:
-            Weight for goal-progress scoring.
+        target_weight:
+            Weight for progress toward the sampled RRT target.
+        goal_weight:
+            Weight for progress toward the goal.
+        best_rounds:
+            Maximum number of incumbent-improvement rounds.
+        score_margin:
+            Minimum score improvement required to update the incumbent.
         rng_seed:
             Random seed for reproducible runs.
         debug:
@@ -367,7 +412,7 @@ def crrt_grid(
 
     # Metrics collected for reporting and CSV output.
     stats: Dict[str, object] = {
-        "planner_type": "crrt_grid",
+        "planner_type": "crrt_matched_score",
         "success": False,
         "iterations": 0,
         "nodes": 1,
@@ -385,9 +430,13 @@ def crrt_grid(
         "invalid_chosen_edge_rejections": 0,
         "candidate_count_total": 0,
         "candidate_count_nonempty_iters": 0,
-        "selected_rank_total": 0,
+        "selected_score_total": 0.0,
         "path_waypoints": None,
         "trace": [] if debug else None,
+        "initial_score_total": 0.0,
+        "marked_set_size_total": 0,
+        "improvement_rounds_total": 0,
+        "classical_improvements": 0,
     }
 
     for it in range(max_iters):
@@ -412,10 +461,14 @@ def crrt_grid(
                     "goal_sampled": goal_sampled,
                     "candidate_count": 0,
                     "chosen_idx": None,
-                    "chosen_rank": None,
+                    "chosen_score": None,
                     "accepted": False,
                     "rejection_reason": "invalid_random_target",
                     "tree_nodes": len(nodes),
+                    "initial_score": None,
+                    "improvement_rounds": 0,
+                    "marked_count": 0,
+                    "improved": False,
                 })
             continue
 
@@ -431,6 +484,7 @@ def crrt_grid(
             edge_valid_idx=edge_valid_idx,
             max_candidates=candidate_count,
             max_radius=2,
+            excluded=visited_tree,
         )
         stats["candidate_count_total"] = int(stats["candidate_count_total"]) + len(candidates)
 
@@ -442,25 +496,52 @@ def crrt_grid(
                     "goal_sampled": goal_sampled,
                     "candidate_count": 0,
                     "chosen_idx": None,
-                    "chosen_rank": None,
+                    "chosen_score": None,
                     "accepted": False,
                     "rejection_reason": "empty_candidate_set",
                     "tree_nodes": len(nodes),
+                    "initial_score": None,
+                    "improvement_rounds": 0,
+                    "marked_count": 0,
+                    "improved": False,
                 })
             continue
 
         stats["candidate_count_nonempty_iters"] = int(stats["candidate_count_nonempty_iters"]) + 1
         stats["classical_calls"] = int(stats["classical_calls"]) + 1
+        
+        order = rng.permutation(len(candidates))
+        candidates = [candidates[int(i)] for i in order]
 
-        # Select one candidate using the classical goal-progress rule.
-        idx_new, chosen_rank = choose_classical_candidate(
+        selection = choose_matched_classical_candidate(
             candidates=candidates,
+            near_idx=idx_near,
+            target_idx=q_rand_idx,
             goal_idx=goal_idx,
             rng=rng,
-            top_k=top_k,
-            progress_weight=progress_weight,
+            target_weight=target_weight,
+            goal_weight=goal_weight,
+            best_rounds=best_rounds,
+            score_margin=score_margin,
         )
-        stats["selected_rank_total"] = int(stats["selected_rank_total"]) + chosen_rank
+
+        idx_new = selection.candidate
+        chosen_score = selection.selected_score
+
+        stats["selected_score_total"] = (
+            float(stats["selected_score_total"]) + selection.selected_score
+        )
+        stats["initial_score_total"] = (
+            float(stats["initial_score_total"]) + selection.initial_score
+        )
+        stats["marked_set_size_total"] = (
+            int(stats["marked_set_size_total"]) + selection.marked_count_total
+        )
+        stats["improvement_rounds_total"] = (
+            int(stats["improvement_rounds_total"]) + selection.improvement_rounds
+        )
+        if selection.improved:
+            stats["classical_improvements"] = int(stats["classical_improvements"]) + 1
 
         rejection_reason = None
         accepted = False
@@ -498,10 +579,14 @@ def crrt_grid(
                             "goal_sampled": goal_sampled,
                             "candidate_count": len(candidates),
                             "chosen_idx": idx_new,
-                            "chosen_rank": chosen_rank,
+                            "chosen_score": chosen_score,
                             "accepted": True,
                             "rejection_reason": None,
                             "tree_nodes": len(nodes),
+                            "initial_score": selection.initial_score,
+                            "improvement_rounds": selection.improvement_rounds,
+                            "marked_count": selection.marked_count_total,
+                            "improved": selection.improved,
                         })
 
                     return path, stats
@@ -512,10 +597,14 @@ def crrt_grid(
                 "goal_sampled": goal_sampled,
                 "candidate_count": len(candidates),
                 "chosen_idx": idx_new,
-                "chosen_rank": chosen_rank,
+                "chosen_score": chosen_score,
                 "accepted": accepted,
                 "rejection_reason": rejection_reason,
                 "tree_nodes": len(nodes),
+                "initial_score": selection.initial_score,
+                "improvement_rounds": selection.improvement_rounds,
+                "marked_count": selection.marked_count_total,
+                "improved": selection.improved,
             })
 
     # If max_iters is reached without reaching the goal, report failure.

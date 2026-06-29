@@ -36,6 +36,7 @@ from qrrt_planner.grid_joint_space import make_joint_bins, total_grid_states
 from qrrt_planner.moveit_collision_checker import MoveItCollisionChecker
 
 
+
 def parse_vector(text: str, dof: int, name: str) -> np.ndarray:
     """
     Parse a comma-separated joint vector from the command line.
@@ -158,11 +159,13 @@ def main():
     parser.add_argument("--goal-radius-idx", type=float, default=0.0)
     parser.add_argument("--edge-step", type=float, default=0.05)
     parser.add_argument("--candidate-count", type=int, default=64)
-    parser.add_argument("--top-k", type=int, default=8)
-    parser.add_argument("--progress-weight", type=float, default=1.0)
     parser.add_argument("--seed", type=int, default=0)
     parser.add_argument("--csv-out", type=str, default=None)
     parser.add_argument("--debug-log", type=str, default=None)
+    parser.add_argument("--target-weight", type=float, default=1.0)
+    parser.add_argument("--goal-weight", type=float, default=1.0)
+    parser.add_argument("--best-rounds", type=int, default=3)
+    parser.add_argument("--score-margin", type=float, default=1e-9)
     args = parser.parse_args()
 
     # Convert command-line strings into planner data structures.
@@ -199,10 +202,12 @@ def main():
         goal_radius_idx=args.goal_radius_idx,
         edge_step=args.edge_step,
         candidate_count=args.candidate_count,
-        top_k=args.top_k,
-        progress_weight=args.progress_weight,
         rng_seed=args.seed,
         debug=bool(args.debug_log),
+        target_weight=args.target_weight,
+        goal_weight=args.goal_weight,
+        best_rounds=args.best_rounds,
+        score_margin=args.score_margin,
     )
     dt = time.perf_counter() - t0
 
@@ -214,16 +219,16 @@ def main():
             / float(stats["candidate_count_nonempty_iters"])
         )
 
-    # Average rank of the selected candidate within the scored candidate list.
-    avg_selected_rank = 0.0
+    # Average selected score under the matched target-plus-goal scoring rule.
+    avg_selected_score = 0.0
     if int(stats["classical_calls"]) > 0:
-        avg_selected_rank = (
-            float(stats["selected_rank_total"])
+        avg_selected_score = (
+            float(stats["selected_score_total"])
             / float(stats["classical_calls"])
         )
 
     # Console summary for quick inspection.
-    print("Classical RRT on discretized grid")
+    print("Matched-score Classical RRT on discretized grid")
     print(f"dof:                       {args.dof}")
     print(f"joint limits:              {joint_limits}")
     print(f"bins per joint:            {bins_per_joint}")
@@ -247,7 +252,7 @@ def main():
     print(f"invalid chosen state:      {stats['invalid_chosen_state_rejections']}")
     print(f"invalid chosen edge:       {stats['invalid_chosen_edge_rejections']}")
     print(f"avg candidate count:       {avg_candidate_count:.3f}")
-    print(f"avg selected rank:         {avg_selected_rank:.3f}")
+    print(f"avg selected score:        {avg_selected_score:.3f}")
 
     if path_idx is not None:
         print(f"path waypoints:            {len(path_idx)}")
@@ -259,7 +264,7 @@ def main():
     # Optional CSV summary row.
     if args.csv_out:
         row = {
-            "planner_type": "crrt_grid",
+            "planner_type": stats["planner_type"],
             "success": bool(stats["success"]),
             "time_sec": dt,
             "iterations": int(stats["iterations"]),
@@ -275,8 +280,12 @@ def main():
             "candidate_count_total": int(stats["candidate_count_total"]),
             "candidate_count_nonempty_iters": int(stats["candidate_count_nonempty_iters"]),
             "avg_candidate_count": avg_candidate_count,
-            "selected_rank_total": int(stats["selected_rank_total"]),
-            "avg_selected_rank": avg_selected_rank,
+            "selected_score_total": float(stats["selected_score_total"]),
+            "avg_selected_score": avg_selected_score,
+            "initial_score_total": float(stats["initial_score_total"]),
+            "marked_set_size_total": int(stats["marked_set_size_total"]),
+            "improvement_rounds_total": int(stats["improvement_rounds_total"]),
+            "classical_improvements": int(stats["classical_improvements"]),
             "path_waypoints": stats["path_waypoints"],
             "bins_per_joint": str(list(bins_per_joint)),
             "total_grid_states": total_grid_states(bins_per_joint),
@@ -291,7 +300,10 @@ def main():
             "goal_sample_rate": args.goal_sample_rate,
             "goal_radius_idx": args.goal_radius_idx,
             "candidate_count": args.candidate_count,
-            "top_k": args.top_k,
+            "target_weight": args.target_weight,
+            "goal_weight": args.goal_weight,
+            "best_rounds": args.best_rounds,
+            "score_margin": args.score_margin,
         }
         append_csv_row(args.csv_out, row)
 
